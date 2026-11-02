@@ -150,23 +150,50 @@
   }
 
   // Apps Script ejecuta esta función al responder.
-  window.recibirResultado = function(res) {
-    if (espera) clearTimeout(espera);
-    espera = null;
+  
+window.recibirResultado = function(res) {
+  if (espera) clearTimeout(espera);
+  espera = null;
 
-    const mensaje = (res.nombre ? res.nombre + '\n' : '') +
-      res.mensaje;
+  let mensaje = '';
 
-    const estilo = res.estado === 'valido'
-      ? 'ok'
-      : res.estado === 'repetido'
-      ? 'alerta'
-      : 'error';
+  if (res.nombre) {
+    mensaje += res.nombre + '\n\n';
+  }
 
-    mostrar(mensaje, estilo);
-    document.getElementById('siguiente')
-      .classList.remove('oculto');
-  };
+  mensaje += res.mensaje;
+
+  if (res.estado === 'valido' ||
+      res.estado === 'repetido') {
+
+    if (res.ultimoIngreso) {
+      mensaje += '\n\nÚltimo ingreso anterior: ' +
+        res.ultimoIngreso;
+
+      if (res.puertaAnterior) {
+        mensaje += '\nPuerta anterior: ' +
+          res.puertaAnterior;
+      }
+    } else {
+      mensaje += '\n\nPrimer ingreso';
+    }
+
+    mensaje += '\nIngresos totales: ' +
+      res.totalIngresos;
+  }
+
+  const estilo = res.estado === 'valido'
+    ? 'ok'
+    : res.estado === 'repetido'
+    ? 'alerta'
+    : 'error';
+
+  mostrar(mensaje, estilo);
+
+  document.getElementById('siguiente')
+    .classList.remove('oculto');
+};
+
 
   function mostrar(mensaje, estilo) {
     const el = document.getElementById('resultado');
